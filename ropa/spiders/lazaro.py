@@ -14,22 +14,11 @@ from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
 
-class Paruolo(CrawlSpider):
-    name = 'paruolo'
-    allowed_domains = ['www.paruolo.com.ar']
+class Lazaro(CrawlSpider):
+    name = 'lazaro'
+    allowed_domains = ['www.lazarocuero.com.ar']
 
-    start_urls = []
-    start_urls = start_urls + ['https://www.paruolo.com.ar/flats.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/fessura-by-paruolo.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/mules.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/bases.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/boots.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/borcegos.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/texanas.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/stilettos.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/night.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/sneakers.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/50.html']
+    start_urls = ['https://www.lazarocuero.com.ar/zapatos.html?p=' + str(i) for i in [1,2]]
                 
 
 
@@ -62,7 +51,7 @@ class Paruolo(CrawlSpider):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
         sel = Selector(text=self.browser.page_source)
-        links = sel.xpath('.//a[@class = "product photo product-item-photo"]/@href')
+        links = sel.xpath('.//a[@class="product-image"]/@href')
         for link in links:
             url_txt = link.extract()
             if self.links.find_one({"_id": url_txt}) is None:
@@ -79,15 +68,15 @@ class Paruolo(CrawlSpider):
             item = Item()
             item['created_at'] = datetime.now()
             item['url'] = response.url
-            item['brand'] = 'paruolo'
+            item['brand'] = 'lazaro'
             item['breadcrumb'] = [response.url.split('/')[-2]] # EJ: https://www.paruolo.com.ar/flats/z016230-west-rose.html
-            item['title'] = sel.xpath('.//span[@class = "base"]/text()').extract()[0]
-            item['description'] = html_text_normalize(sel.xpath('.//table[@class="data table additional-attributes"]//tr//text()').extract())
-            item['code'] = sel.xpath('.//div[@class="product-view-sku"]/text()').extract()[0]
+            item['title'] = sel.xpath('.//div[@class="product-main-info text-center"]//h1/text()').extract()[0]
+            item['description'] = html_text_normalize(sel.xpath('.//div[@id="collapseOne"]/div/text()').extract())
+            item['code'] = sel.xpath('.//div[@class="sku"]/text()').extract()[0].replace('SKU# ', '')
             item['price'] = price_normalize(sel.xpath('.//span[@class="price"]/text()').extract()[0])
-            sizes = sel.xpath('.//div[@class="swatch-option text"]/text()').extract()
+            sizes = sel.xpath('.//div[@class="amconf-images-container switcher-field"]//label[not(contains(@class,"no-stock"))]/text()').extract()
             item['sizes'] = sizes
-            item['image_urls'] = sel.xpath('.//div[@class="fotorama__stage__shaft fotorama__grab"]/div/@href').extract()
+            item['image_urls'] = sel.xpath('.//div[@id="gallery_01"]//li/a/@data-image').extract()
             yield item
             self.links.insert({"_id": response.url})
         else:
