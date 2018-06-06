@@ -14,11 +14,11 @@ from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
 
-class Lazaro(CrawlSpider):
-    name = 'lazaro'
-    allowed_domains = ['www.lazarocuero.com.ar']
+class HonkyTonk(CrawlSpider):
+    name = 'honkytonk'
+    allowed_domains = ['www.honkytonkshop.com']
 
-    start_urls = ['https://www.lazarocuero.com.ar/zapatos.html?p=' + str(i) for i in [1,2]]
+    start_urls = ['https://www.honkytonkshop.com/woman/calzado-woman/']
                 
 
 
@@ -68,15 +68,20 @@ class Lazaro(CrawlSpider):
             item = Item()
             item['created_at'] = datetime.now()
             item['url'] = response.url
-            item['brand'] = 'lazaro'
-            item['breadcrumb'] = []
-            item['title'] = sel.xpath('.//div[@class="product-main-info text-center"]//h1/text()').extract()[0]
-            item['description'] = html_text_normalize(sel.xpath('.//div[@id="collapseOne"]/div/text()').extract())
-            item['code'] = sel.xpath('.//div[@class="sku"]/text()').extract()[0].replace('SKU# ', '')
-            item['price'] = price_normalize(sel.xpath('.//span[@class="price"]/text()').extract()[0])
-            sizes = sel.xpath('.//div[@class="amconf-images-container switcher-field"]//label[not(contains(@class,"no-stock"))]/text()').extract()
-            item['sizes'] = sizes
-            item['image_urls'] = sel.xpath('.//div[@id="gallery_01"]//li/a/@data-image').extract()
+            item['brand'] = 'honkytonk'
+            item['breadcrumb'] = sel.xpath('.//a[@class="breadcrumb-crumb"]/text()').extract()
+            item['title'] = sel.xpath('.//span[contains(@class,"product-name")]/text()').extract()[0]
+            item['description'] = ''
+            item['code'] = ''
+            item['price'] = price_normalize(sel.xpath('.//span[@class="price product-price js-price-display"]/@content').extract()[0])
+            sizes = sel.xpath('.//div[contains(./label/text(),"talle")]/select/option/text()').extract()
+            if len(sizes) == 0:
+                sizes = sel.xpath('.//a[contains(@class,"custom Size")]/span/@data-name').extract()
+            item['sizes'] = list(set(sizes))
+            img_urls = [url[2:] for url in sel.xpath('.//div[@class="jTscroller scroller-thumbs"]/a/@href').extract()]
+            if len(img_urls) == 0:
+                img_urls = [url[2:] for url in sel.xpath('.//a[@id="zoom"]/@href').extract()]
+            item['image_urls'] = img_urls
             yield item
             self.links.insert({"_id": response.url})
         else:
