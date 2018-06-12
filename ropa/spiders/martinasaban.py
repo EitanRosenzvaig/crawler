@@ -13,12 +13,13 @@ from ropa.items import Item
 from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
+from pdb import set_trace as bp
 
-class ClaraBarcelo(CrawlSpider):
-    name = 'clarabarcelo'
-    allowed_domains = ['www.clarabarcelo.com']
+class MartinaSaban(CrawlSpider):
+    name = 'martinasaban'
+    allowed_domains = ['www.martinasaban.com.ar']
 
-    start_urls = ['https://www.clarabarcelo.com/clara-barcelo-zapatos.html?p=' + str(i) for i in [1,2]]
+    start_urls = ['https://www.martinasaban.com.ar/category/184999?page=' + str(i) for i in [1,2]]
                 
 
 
@@ -26,7 +27,7 @@ class ClaraBarcelo(CrawlSpider):
         CrawlSpider.__init__(self)
         self.verificationErrors = []
         # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Firefox()
+        self.browser = webdriver.Chrome()
         self.browser.set_page_load_timeout(120)
         self.connection = MongoClient("localhost", 27017)
         self.comments = self.connection.ropa.items
@@ -50,10 +51,11 @@ class ClaraBarcelo(CrawlSpider):
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
+        time.sleep(2)
         sel = Selector(text=self.browser.page_source)
-        links = sel.xpath('.//a[@class="product-image"]/@href')
+        links = sel.xpath('.//a[@class="images TWL img"]/@href')
         for link in links:
-            url_txt = link.extract()
+            url_txt = 'https://www.martinasaban.com.ar' + link.extract()
             if self.links.find_one({"_id": url_txt}) is None:
                 print("------------Found new link: "+str(url_txt))
                 yield Request(url_txt, callback=self.parse_item)
@@ -68,20 +70,23 @@ class ClaraBarcelo(CrawlSpider):
             item = Item()
             item['created_at'] = datetime.now()
             item['url'] = response.url
-            item['brand'] = 'clarabarcelo'
+            item['brand'] = 'martinasaban'
             item['breadcrumb'] = []
-            item['title'] = sel.xpath('.//div[@class="product-main-info"]//h2/text()').extract()[0]
-            item['description'] = html_text_normalize(sel.xpath('.//div[@id="collapseOne"]/div//text()').extract())
-            item['code'] = sel.xpath('.//span[@class="sku"]/text()').extract()[0].replace('SKU# ', '')
-            price = sel.xpath('.//span[@class="special-price"]/span[@class="price"]/text()').extract()
-            if len(price) > 0:
-                price = price[0]
-            else:
-                price = sel.xpath('.//span[@class="price"]/text()').extract()[0]
-            item['price'] = price_normalize(price)
-            sizes = sel.xpath('.//div[@class="amconf-images-container switcher-field"]//label[not(contains(@class,"no-stock"))]/text()').extract()
+            item['title'] = sel.xpath('.//h1[@class="name ng-binding"]/text()').extract()[0]
+            description = html_text_normalize(sel.xpath('.//div[@class="tab-content"]//text()').extract())
+            item['description'] = description
+            item['code'] = ''
+            item['price'] = price_normalize(sel.xpath('.//p[@class="price ng-binding"]/text()').extract()[0])
+            sizes = []
+            for size_span in self.browser.find_elements_by_xpath('.//tag-option/a/span'):
+                size_span.click()
+                time.sleep(0.5)
+                actual_size = size_span.text
+                if 'Agregar' in sel.xpath('.//button[@id="addItemMyCart"]//span/text()').extract()[0]:
+                    sizes.append(actual_size)
             item['sizes'] = sizes
-            item['image_urls'] = sel.xpath('.//div[@id="gallery_01"]//li/a/@data-image').extract()
+            item['image_urls'] = [url.replace('Square', 'Original') for url in \
+                                  sel.xpath('.//li[@class="carousel-item ng-scope"]/img/@src').extract()]
             yield item
             self.links.insert({"_id": response.url})
         else:

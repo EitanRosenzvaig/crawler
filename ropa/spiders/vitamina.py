@@ -14,11 +14,11 @@ from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
 
-class ClaraBarcelo(CrawlSpider):
-    name = 'clarabarcelo'
-    allowed_domains = ['www.clarabarcelo.com']
+class Vitamina(CrawlSpider):
+    name = 'vitamina'
+    allowed_domains = ['www.vitamina.com.ar']
 
-    start_urls = ['https://www.clarabarcelo.com/clara-barcelo-zapatos.html?p=' + str(i) for i in [1,2]]
+    start_urls = ['https://www.vitamina.com.ar/e-store/accesorios/calzado.html']
                 
 
 
@@ -26,7 +26,7 @@ class ClaraBarcelo(CrawlSpider):
         CrawlSpider.__init__(self)
         self.verificationErrors = []
         # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Firefox()
+        self.browser = webdriver.Chrome()
         self.browser.set_page_load_timeout(120)
         self.connection = MongoClient("localhost", 27017)
         self.comments = self.connection.ropa.items
@@ -68,20 +68,21 @@ class ClaraBarcelo(CrawlSpider):
             item = Item()
             item['created_at'] = datetime.now()
             item['url'] = response.url
-            item['brand'] = 'clarabarcelo'
+            item['brand'] = 'vitamina'
             item['breadcrumb'] = []
-            item['title'] = sel.xpath('.//div[@class="product-main-info"]//h2/text()').extract()[0]
-            item['description'] = html_text_normalize(sel.xpath('.//div[@id="collapseOne"]/div//text()').extract())
-            item['code'] = sel.xpath('.//span[@class="sku"]/text()').extract()[0].replace('SKU# ', '')
-            price = sel.xpath('.//span[@class="special-price"]/span[@class="price"]/text()').extract()
+            item['title'] = sel.xpath('.//h1[@id="nombreProducto"]/text()').extract()[0]
+            description = html_text_normalize(sel.xpath('.//p[@itemprop="description"]/text()').extract())
+            item['description'] = description
+            item['code'] = ''
+            price = sel.xpath('.//section[@id="datos"]//p[@class="special-price"]/span[@itemprop="price" and @class="price"]/@content').extract()
             if len(price) > 0:
                 price = price[0]
             else:
-                price = sel.xpath('.//span[@class="price"]/text()').extract()[0]
+                price = sel.xpath('.//span[@class="price"]/@content').extract()[0]
             item['price'] = price_normalize(price)
-            sizes = sel.xpath('.//div[@class="amconf-images-container switcher-field"]//label[not(contains(@class,"no-stock"))]/text()').extract()
+            sizes = sel.xpath('.//li[@class="swatchContainer"]/div[@class="swatch"]/text()').extract()
             item['sizes'] = sizes
-            item['image_urls'] = sel.xpath('.//div[@id="gallery_01"]//li/a/@data-image').extract()
+            item['image_urls'] = sel.xpath('.//div[@class="fotozoom"]/img[@class="zoomImg"]/@src').extract()
             yield item
             self.links.insert({"_id": response.url})
         else:
