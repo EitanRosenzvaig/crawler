@@ -13,14 +13,16 @@ from ropa.items import Item
 from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
+from pdb import set_trace as bp
 
-class Vitamina(CrawlSpider):
-    name = 'vitamina'
-    allowed_domains = ['www.vitamina.com.ar']
+class Heyas(CrawlSpider):
+    name = 'heyas'
+    allowed_domains = ['www.heyas.com.ar']
 
-    start_urls = ['https://www.vitamina.com.ar/e-store/accesorios/calzado.html']
+    start_urls = ['https://www.heyas.com.ar/shop-online.html?p=3&tipo_producto=490']
                 
 
+    next_page = './/div[@class="pages"]/ol/li[not(a[@class="next i-next"]) and not(a[@class="previous i-previous"])]'
 
     def __init__(self):
         CrawlSpider.__init__(self)
@@ -46,13 +48,28 @@ class Vitamina(CrawlSpider):
         else:
             return("")
 
+    def last_page(self, selector):
+        total_pages = selector.xpath(self.next_page+'/a/text()').extract()
+        return int(total_pages[len(total_pages)-1])
 
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
         sel = Selector(text=self.browser.page_source)
-        links = sel.xpath('.//a[@class="product-image"]/@href')
-        for link in links:
+        links = []
+        i = 0
+        total_pages = self.last_page(sel)
+        while i < total_pages:
+            page = self.browser.find_elements_by_xpath(self.next_page)[i]
+            try:
+                page.click()
+            except:
+                pass
+            sel = Selector(text=self.browser.page_source)
+            links += sel.xpath('.//a[@class="product-image"]/@href')
+            i+=1
+            total_pages = self.last_page(sel)
+        for link in set(links):
             url_txt = link.extract()
             if self.links.find_one({"_id": url_txt}) is None:
                 print("------------Found new link: "+str(url_txt))
@@ -68,21 +85,20 @@ class Vitamina(CrawlSpider):
             item = Item()
             item['created_at'] = datetime.now()
             item['url'] = response.url
-            item['brand'] = 'vitamina'
+            item['brand'] = 'heyas'
             item['breadcrumb'] = []
-            item['title'] = sel.xpath('.//h1[@id="nombreProducto"]/text()').extract()[0]
-            description = html_text_normalize(sel.xpath('.//p[@itemprop="description"]/text()').extract())
+            item['title'] = sel.xpath('.//div[@class="product-main-info text-center"]//h2/text()').extract()[0]
+            description = html_text_normalize(sel.xpath('.//div[@class="description"]//text()').extract())
             item['description'] = description
-            item['code'] = ''
-            price = sel.xpath('.//section[@id="datos"]//p[@class="special-price"]/span[@itemprop="price" and @class="price"]/@content').extract()
-            if len(price) > 0:
-                price = price[0]
+            item['code'] = sel.xpath('.//div[@class="sku"]/text()').extract()[0].replace('SKU# ','')
+            price = sel.xpath('.//div[@class="product-main-info text-center"]//span[@class="price"]/text()').extract()
+            if len(price) > 1:
+                price = price[len(price) - 1]
             else:
-                price = sel.xpath('.//span[@itemprop="price"]/@content').extract()[0]
+                price = price[0]
             item['price'] = price_normalize(price)
-            sizes = sel.xpath('.//li[@class="swatchContainer"]/div[@class="swatch"]/text()').extract()
-            item['sizes'] = sizes
-            item['image_urls'] = sel.xpath('.//div[@class="fotozoom"]/img[@class="zoomImg"]/@src').extract()
+            item['sizes'] = sel.xpath('.//div[@class="input-box"]//label[not(contains(@class,"no-stock"))]/text()').extract()
+            item['image_urls'] = sel.xpath('.//div[@id="gallery_01"]//a/@data-zoom-image').extract()
             yield item
             self.links.insert({"_id": response.url})
         else:

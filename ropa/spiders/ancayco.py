@@ -13,14 +13,17 @@ from ropa.items import Item
 from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
+from pdb import set_trace as bp
 
-class Vitamina(CrawlSpider):
-    name = 'vitamina'
-    allowed_domains = ['www.vitamina.com.ar']
+class AncaYCo(CrawlSpider):
+    name = 'ancayco'
+    allowed_domains = ['www.ancayco.com.ar']
 
-    start_urls = ['https://www.vitamina.com.ar/e-store/accesorios/calzado.html']
+    start_urls = ['http://www.ancayco.com.ar/store/listing?filter=class:Tienda$0020Online_$0026&page=0']
                 
-
+    size_div_path = './/span[@class="attributeSelector"]/div'
+    color_div_path = './/div[@class="colorSelector"]/div[contains(@class, "selectableColor")]'
+    buy_button_path = './/a[@class="_cartLink button default"]/@style'
 
     def __init__(self):
         CrawlSpider.__init__(self)
@@ -46,17 +49,22 @@ class Vitamina(CrawlSpider):
         else:
             return("")
 
-
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
         sel = Selector(text=self.browser.page_source)
-        links = sel.xpath('.//a[@class="product-image"]/@href')
-        for link in links:
-            url_txt = link.extract()
+        links = sel.xpath('.//div[@class="productListing"]//a[contains(@href,"tienda-online")]/@href')
+        for link in set(links):
+            url_txt = 'http://www.ancayco.com.ar' + link.extract()
             if self.links.find_one({"_id": url_txt}) is None:
                 print("------------Found new link: "+str(url_txt))
                 yield Request(url_txt, callback=self.parse_item)
+
+    def click_element(self, element):
+        try:
+            element.click()
+        except:
+            pass
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -68,21 +76,33 @@ class Vitamina(CrawlSpider):
             item = Item()
             item['created_at'] = datetime.now()
             item['url'] = response.url
-            item['brand'] = 'vitamina'
+            item['brand'] = 'ancayco'
             item['breadcrumb'] = []
-            item['title'] = sel.xpath('.//h1[@id="nombreProducto"]/text()').extract()[0]
-            description = html_text_normalize(sel.xpath('.//p[@itemprop="description"]/text()').extract())
+            item['title'] = sel.xpath('.//div[@class="name uppercase bold"]/text()').extract()[0]
+            description = [(text if ('PRODUCTO' not in text and 'MERCADO' not in text) else '') for text in sel.xpath('.//div[@class="lfill top-1"]//text()').extract()]
+            description = html_text_normalize(description)
             item['description'] = description
-            item['code'] = ''
-            price = sel.xpath('.//section[@id="datos"]//p[@class="special-price"]/span[@itemprop="price" and @class="price"]/@content').extract()
+            item['code'] = sel.xpath('.//div[@class="lfill"]/text()').extract()[0].replace('Código ','')
+            price = sel.xpath('.//span[@class="_totalContainer left-1"]//text()').extract()
             if len(price) > 0:
                 price = price[0]
+                item['price'] = price_normalize(price)
             else:
-                price = sel.xpath('.//span[@itemprop="price"]/@content').extract()[0]
-            item['price'] = price_normalize(price)
-            sizes = sel.xpath('.//li[@class="swatchContainer"]/div[@class="swatch"]/text()').extract()
-            item['sizes'] = sizes
-            item['image_urls'] = sel.xpath('.//div[@class="fotozoom"]/img[@class="zoomImg"]/@src').extract()
+                item['price'] = 0
+            sizes = []
+            for size_div in self.browser.find_elements_by_xpath(self.size_div_path):
+                for color_div in self.browser.find_elements_by_xpath(self.color_div_path):
+                    self.click_element(size_div)
+                    self.click_element(color_div)
+                    time.sleep(1)
+                    actual_size = size_div.text
+                    source = self.browser.page_source
+                    sel = Selector(text=source)
+                    buy_button_style = sel.xpath(self.buy_button_path).extract()[0]
+                    if not 'display: none;' in buy_button_style:
+                        sizes.append(actual_size)
+            item['sizes'] = list(set(sizes))
+            item['image_urls'] = sel.xpath('.//div[@class="thumbnail"]/a/@href').extract()
             yield item
             self.links.insert({"_id": response.url})
         else:
