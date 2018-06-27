@@ -19,10 +19,8 @@ class Heyas(CrawlSpider):
     name = 'heyas'
     allowed_domains = ['www.heyas.com.ar']
 
-    start_urls = ['https://www.heyas.com.ar/shop-online.html?p=3&tipo_producto=490']
+    start_urls = ['https://www.heyas.com.ar/shop-online.html?p=' + str(i) + '&tipo_producto=490' for i in range(1,12)]
                 
-
-    next_page = './/div[@class="pages"]/ol/li[not(a[@class="next i-next"]) and not(a[@class="previous i-previous"])]'
 
     def __init__(self):
         CrawlSpider.__init__(self)
@@ -48,27 +46,11 @@ class Heyas(CrawlSpider):
         else:
             return("")
 
-    def last_page(self, selector):
-        total_pages = selector.xpath(self.next_page+'/a/text()').extract()
-        return int(total_pages[len(total_pages)-1])
-
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
         sel = Selector(text=self.browser.page_source)
-        links = []
-        i = 0
-        total_pages = self.last_page(sel)
-        while i < total_pages:
-            page = self.browser.find_elements_by_xpath(self.next_page)[i]
-            try:
-                page.click()
-            except:
-                pass
-            sel = Selector(text=self.browser.page_source)
-            links += sel.xpath('.//a[@class="product-image"]/@href')
-            i+=1
-            total_pages = self.last_page(sel)
+        links = sel.xpath('.//a[@class="product-image"]/@href')
         for link in set(links):
             url_txt = link.extract()
             if self.links.find_one({"_id": url_txt}) is None:

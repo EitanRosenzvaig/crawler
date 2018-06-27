@@ -19,17 +19,18 @@ class Paruolo(CrawlSpider):
     allowed_domains = ['www.paruolo.com.ar']
 
     start_urls = []
-    start_urls = start_urls + ['https://www.paruolo.com.ar/flats.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/fessura-by-paruolo.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/mules.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/bases.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/boots.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/borcegos.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/texanas.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/stilettos.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/night.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/sneakers.html']
-    start_urls = start_urls + ['https://www.paruolo.com.ar/50.html']
+    start_urls = start_urls + ['https://www.paruolo.com.ar/flats.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/fessura-by-paruolo.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/mules.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/bases.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/boots.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/borcegos.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/texanas.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/stilettos.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/night.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/sneakers.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/ankle-boots.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/50.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
                 
 
 
@@ -85,7 +86,7 @@ class Paruolo(CrawlSpider):
             item['description'] = html_text_normalize(sel.xpath('.//table[@class="data table additional-attributes"]//tr//text()').extract())
             item['code'] = sel.xpath('.//div[@class="product-view-sku"]/text()').extract()[0]
             item['price'] = price_normalize(sel.xpath('.//span[@class="price"]/text()').extract()[0])
-            sizes = sel.xpath('.//div[@class="swatch-option text"]/text()').extract()
+            sizes = sel.xpath('.//div[contains(@class,"swatch-option text")]/text()').extract()
             item['sizes'] = sizes
             item['image_urls'] = sel.xpath('.//div[@class="fotorama__stage__shaft fotorama__grab"]/div/@href').extract()
             yield item

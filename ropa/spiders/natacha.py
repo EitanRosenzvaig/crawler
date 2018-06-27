@@ -17,7 +17,7 @@ from pdb import set_trace as bp
 
 class Natacha(CrawlSpider):
     name = 'natacha'
-    allowed_domains = ['www.cest-fini.com']
+    allowed_domains = ['www.shop.natachaweb.com.ar']
 
     start_urls = ['https://www.shop.natachaweb.com.ar/ballerinas-zapatillas_qO30122645XoOmaxPriceXtOcXvOgalleryxSM']
     start_urls += ['https://www.shop.natachaweb.com.ar/botinetas_qO29847378XpO' + str(i) + 'XoOmaxPriceXtOcXvOgalleryxSM' for i in [1,2]]
@@ -94,8 +94,8 @@ class Natacha(CrawlSpider):
             item['code'] = ''
             price = sel.xpath('.//span[@class="ch-price price"]/text()').extract()[0]
             item['price'] = price_normalize(price)
-            sizes = sel.xpath('.//menu[@class="ch-select-content ch-points-ltlb ch-hide"]/li/span[not(text()="Talle")]/text()').extract()
-            if len(sizes) = 0:
+            sizes = sel.xpath('.//div[@id="my-variation-1-container"]//menu[contains(@class,"ch-select-content")]/li/span[not(text()="Talle")]/text()').extract()
+            if len(sizes) == 0:
                 sizes = [sel.xpath('.//span[contains(text(),"Talle")]/text()').extract()[0].replace('Talle: ','')]
             item['sizes'] = sizes
             img_urls = sel.xpath('.//ul[@class="ch-carousel-list"]/li/img/@src').extract()
