@@ -1,0 +1,49 @@
+Referencias:
+	DD: Pie Derecho Mirando a la Derecha
+	II: -> Se puede espejar la foto y compararla con DD
+	FI: Par mirando al frente inclinado hacia la izquierda
+	FD: Par mirando al frente inclinado hacia la derecha
+	FD_ABIERTO: Mismo q anterior pero par abierto
+	Superior_arriba: Par mirado desde arriba mirando hacia arriba
+	Superior_abajo: -> Se puede rotar la foto y compararla con Superior_arriba
+	Par_Derecha: El par puesto una sobre otro
+	OTHERS
+
+47: NO_SIGUE_ORDEN
+anayco: ['DD']
+benditopie: ['FD', 'DD', 'Superior_arriba']
+blaque: ['DD', 'FI']
+briganti: ['DD', 'OTHERS', 'FD','Par_Derecha']
+brunomanetti: ['Par_Derecha']
+carladanelli: NO_SIGUE_ORDEN
+cestfini: ['DD', 'FD_ABIERTO', 'OTHERS', 'OTHERS']
+clarabarcelo ['FD', 'OTHERS', 'DD', 'Superior_arriba', 'OTHERS']
+converse: ['DD']
+dos61: NO_SIGUE_ORDEN, en realidad si pero a veces la primera no esta y te desbarajusta todo
+febo: ['DD', 'OTHERS', 'FD', 'Superior_abajo']
+grimoldi: ['DD', ... x3] *
+hers: NO_SIGUE_ORDEN
+heyas: ['FD', 'OTHERS', 'DD', 'Superior_arriba', 'OTHERS']
+HonkyTonk: ['DD']
+JackieSmith: ['FD', ... x3]
+JohnLCook: NO_SIGUE_ORDEN
+JuanitaJo: ['DD', ... x3]
+JustaOsadia: ['DD', .. x2]
+Ladystork: ['DD']
+Lazaro: ['DD', ...] *
+Lucerna: ['DD', ...] *
+MaggioRossetto: ['DD']
+MartinaSaban: NO_SIGUE_ORDEN
+Natacha: NO_SIGUE_ORDEN
+Paruolo: ['FD'] *
+Prune: ['DD', 'OTHRES']
+Sarkany: ['DD', 'OTHRES', 'OTHRES', 'OTHRES']
+SofiMartire: ['FD', 'OTHRES', 'DD', 'Superior_arriba','OTHRES']
+SofiaDeGrecia: ['DD']
+Viamo: ['FD', 'II', 'OTHERS']
+ViaUno: ['FD', 'OTHERS', 'DD', 'Superior_arriba', 'OTHERS']
+Vitamina: No siguien un ornde y encima mirar para la izquierda y algunas cortadas
+XL: No siguen un orden
+
+
+La mayoria son XX o similares, para una primer version van bien pero para hacer ML yo las excluiría
