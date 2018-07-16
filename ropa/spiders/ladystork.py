@@ -13,7 +13,7 @@ from ropa.items import Item
 from pymongo import MongoClient
 from text_parser import price_normalize, html_text_normalize
 
-class Lucerna(CrawlSpider):
+class Ladystork(CrawlSpider):
     name = 'ladystork'
     allowed_domains = ['www.ladystork.com']
 

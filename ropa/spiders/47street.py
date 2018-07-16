@@ -18,7 +18,7 @@ class CuarentiSieteStreet(CrawlSpider):
     name = 'cuarentisietestreet'
     allowed_domains = ['47street.com.ar']
 
-    start_urls = ['https://47street.com.ar/invierno18/calzado-aw18.html']
+    start_urls = ['https://47street.com.ar/invierno18/calzado.html']
                 
 
 

@@ -20,7 +20,7 @@ class Grimoldi(CrawlSpider):
     allowed_domains = ['www.grimoldi.com']
 
     start_urls = []
-    start_urls = start_urls + ['https://www.grimoldi.com/coleccionmujer/#/mujer']
+    start_urls = start_urls + ['https://www.grimoldi.com/coleccionmujer/#/mujer/calzado']
                 
 
 

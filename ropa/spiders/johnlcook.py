@@ -17,7 +17,7 @@ class JohnLCook(CrawlSpider):
     name = 'johnlcook'
     allowed_domains = ['shop.johnlcook.com.ar']
 
-    start_urls = ['http://shop.johnlcook.com.ar/cook.html']
+    start_urls = ['http://shop.johnlcook.com.ar/cook/winter/sneakers.html']
 
 
     def __init__(self):
