@@ -5,18 +5,18 @@ from scrapy.crawler import CrawlerProcess
 from pymongo import MongoClient
 
 
-settings = get_project_settings()
-spider_loader = spiderloader.SpiderLoader.from_settings(settings)
-n_at_a_time = 5
-all_spiders = spider_loader.list()
+# settings = get_project_settings()
+# spider_loader = spiderloader.SpiderLoader.from_settings(settings)
+# n_at_a_time = 5
+# all_spiders = spider_loader.list()
 
-for i in range(0, len(all_spiders), n_at_a_time):
-    process = CrawlerProcess(settings)
-    spider_batch = all_spiders[i:(i+n_at_a_time)]
-    for spider_name in spider_batch:
-        print ("Running spider %s" % (spider_name))
-        process.crawl(spider_name) 
-    process.start()
+# for i in range(0, len(all_spiders), n_at_a_time):
+#     process = CrawlerProcess(settings)
+#     spider_batch = all_spiders[i:(i+n_at_a_time)]
+#     for spider_name in spider_batch:
+#         print ("Running spider %s" % (spider_name))
+#         process.crawl(spider_name) 
+#     process.start()
 
 
 # Clean up

@@ -18,7 +18,7 @@ class MargieFranzini(CrawlSpider):
     name = 'margiefranzini'
     allowed_domains = ['www.margiefranzini.com']
 
-    start_urls = ['https://www.margiefranzini.com/_XpO' + str(i) + 'XtOwXvOgalleryxSM' for i in [1,2]]
+    start_urls = ['https://www.margiefranzini.com/_XpO' + str(i) + 'XtOwXvOgalleryxSM' for i in range(1,11)]
 
 
     def __init__(self):
