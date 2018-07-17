@@ -19,18 +19,18 @@ class Paruolo(CrawlSpider):
     allowed_domains = ['www.paruolo.com.ar']
 
     start_urls = []
-    start_urls = start_urls + ['https://www.paruolo.com.ar/flats.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/fessura-by-paruolo.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/mules.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/bases.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/boots.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/borcegos.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/texanas.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/stilettos.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/night.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/sneakers.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/ankle-boots.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
-    start_urls = start_urls + ['https://www.paruolo.com.ar/50.html?product_list_limit=32&p=' + str(i) for i in [1,2]]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/flats.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/fessura-by-paruolo.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/mules.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/bases.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/boots.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/borcegos.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/texanas.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/stilettos.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/night.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/sneakers.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/ankle-boots.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
+    start_urls = start_urls + ['https://www.paruolo.com.ar/50.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
                 
 
 
@@ -66,9 +66,8 @@ class Paruolo(CrawlSpider):
         links = sel.xpath('.//a[@class = "product photo product-item-photo"]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -90,6 +89,5 @@ class Paruolo(CrawlSpider):
             item['sizes'] = sizes
             item['image_urls'] = sel.xpath('.//div[@class="fotorama__stage__shaft fotorama__grab"]/div/@href').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

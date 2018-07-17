@@ -54,9 +54,8 @@ class JackieSmith(CrawlSpider):
         links = sel.xpath('.//div[@class="product"]/a/@href')
         for link in links:
             url_txt = 'https://jackiesmith.com.ar' + link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -78,6 +77,5 @@ class JackieSmith(CrawlSpider):
             item['sizes'] = sizes
             item['image_urls'] = [url[2:] for url in sel.xpath('.//div[@class="MagicToolboxSelectorsContainer"]/a/@href').extract()]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

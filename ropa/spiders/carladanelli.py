@@ -18,7 +18,7 @@ class CarlaDanelli(CrawlSpider):
     name = 'carladanelli'
     allowed_domains = ['www.carladanelli.com.ar']
 
-    start_urls = ['http://www.carladanelli.com.ar/carla-danelli/calzado.html?p=' + str(i) for i in [1,2]]
+    start_urls = ['http://www.carladanelli.com.ar/carla-danelli/calzado.html?p=' + str(i) for i in [1,2,3]]
                 
 
 
@@ -52,11 +52,10 @@ class CarlaDanelli(CrawlSpider):
         self.browser.get(response.url)
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//a[@class="product-image"]/@href')
-        for link in links:
+        for link in set(links):
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:

@@ -53,9 +53,8 @@ class Heyas(CrawlSpider):
         links = sel.xpath('.//a[@class="product-image"]/@href')
         for link in set(links):
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -82,6 +81,5 @@ class Heyas(CrawlSpider):
             item['sizes'] = sel.xpath('.//div[@class="input-box"]//label[not(contains(@class,"no-stock"))]/text()').extract()
             item['image_urls'] = sel.xpath('.//div[@id="gallery_01"]//a/@data-zoom-image').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

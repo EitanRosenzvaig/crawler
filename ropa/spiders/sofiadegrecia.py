@@ -68,9 +68,8 @@ class SofiaDeGrecia(CrawlSpider):
             total_pages = self.last_page(sel)
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -97,6 +96,5 @@ class SofiaDeGrecia(CrawlSpider):
             item['sizes'] = [html_text_normalize(size) for size in sel.xpath('.//ul[@id="configurable_swatch_talle_calzado"]//span[@class="swatch-label"]/text()').extract()]
             item['image_urls'] = sel.xpath('.//div[@class="product-img-box"]//a/img[not(contains(@src,"thumb"))]/@src').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

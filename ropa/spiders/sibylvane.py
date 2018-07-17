@@ -18,7 +18,7 @@ class SibylVane(CrawlSpider):
     name = 'sibylvane'
     allowed_domains = ['www.sibylvane.com']
 
-    start_urls = ['http://www.sibylvane.com/catalogo/zapatos?pageindex=' + str(i) for i in [1,2]]
+    start_urls = ['http://www.sibylvane.com/catalogo/zapatos?pageindex=' + str(i) for i in range(1,12)]
                 
 
 
@@ -54,9 +54,8 @@ class SibylVane(CrawlSpider):
         links = sel.xpath('.//a[@id="hplProduct"]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:

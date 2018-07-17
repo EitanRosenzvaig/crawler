@@ -56,9 +56,8 @@ class AncaYCo(CrawlSpider):
         links = sel.xpath('.//div[@class="productListing"]//a[contains(@href,"tienda-online")]/@href')
         for link in set(links):
             url_txt = 'http://www.ancayco.com.ar' + link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def click_element(self, element):
         try:
@@ -104,6 +103,5 @@ class AncaYCo(CrawlSpider):
             item['sizes'] = list(set(sizes))
             item['image_urls'] = sel.xpath('.//div[@class="thumbnail"]/a/@href').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

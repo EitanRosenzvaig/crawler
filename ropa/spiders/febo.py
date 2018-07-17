@@ -56,9 +56,8 @@ class Febo(CrawlSpider):
         links = sel.xpath('.//a[contains(@href,"detalle_producto")]/@href')
         for link in links:
             url_txt = 'http://zapateriafebo.com/' + link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -82,6 +81,5 @@ class Febo(CrawlSpider):
             item['image_urls'] = ['https://zapateriafebo.com/' + url for url in \
                                               sel.xpath('.//foto_principal/img/@src').extract()]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

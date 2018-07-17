@@ -19,7 +19,7 @@ class MartinaSaban(CrawlSpider):
     name = 'martinasaban'
     allowed_domains = ['www.martinasaban.com.ar']
 
-    start_urls = ['https://www.martinasaban.com.ar/category/184999?page=' + str(i) for i in [1,2]]
+    start_urls = ['https://www.martinasaban.com.ar/category/184999?page=' + str(i) for i in [1,2,3,4]]
                 
 
 
@@ -56,9 +56,8 @@ class MartinaSaban(CrawlSpider):
         links = sel.xpath('.//a[@class="images TWL img"]/@href')
         for link in links:
             url_txt = 'https://www.martinasaban.com.ar' + link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -88,6 +87,5 @@ class MartinaSaban(CrawlSpider):
             item['image_urls'] = [url.replace('Square', 'Original') for url in \
                                   sel.xpath('.//li[@class="carousel-item ng-scope"]/img/@src').extract()]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

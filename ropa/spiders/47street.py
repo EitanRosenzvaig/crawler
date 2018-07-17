@@ -54,9 +54,8 @@ class CuarentiSieteStreet(CrawlSpider):
         links = sel.xpath('.//a[@class="product photo product-item-photo"]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -78,6 +77,5 @@ class CuarentiSieteStreet(CrawlSpider):
             item['sizes'] = sizes
             item['image_urls'] = sel.xpath('.//div[@class="imagen"]/img/@src').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

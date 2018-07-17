@@ -26,7 +26,7 @@ class Sarkany(CrawlSpider):
         CrawlSpider.__init__(self)
         self.verificationErrors = []
         # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
+        self.browser = webdriver.Firefox()
         self.browser.set_page_load_timeout(120)
         self.connection = MongoClient("localhost", 27017)
         self.comments = self.connection.ropa.items
@@ -36,6 +36,7 @@ class Sarkany(CrawlSpider):
         # Rule(LinkExtractor(restrict_xpaths="//a[@class='f-linkNota']"), callback='parse_item', follow=True)
         # Rule(LinkExtractor(allow_domains=allowed_domains), callback='parse_item', follow=True)
     ]
+
 
     def flaten_array_of_strings(self, array):
         if len(array) > 0:
@@ -50,15 +51,29 @@ class Sarkany(CrawlSpider):
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
-        print("NOW SCROLLLLLLL!!!!!")
-        time.sleep(1)
+        SCROLL_PAUSE_TIME = 10
+
+        # Get scroll height
+        last_height = self.browser.execute_script("return document.body.scrollHeight")
+
+        while True:
+            # Scroll down to bottom
+            nothing = self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+            # Wait to load page
+            time.sleep(SCROLL_PAUSE_TIME)
+
+            # Calculate new scroll height and compare with last scroll height
+            new_height = self.browser.execute_script("return document.body.scrollHeight")
+            if new_height == last_height:
+                break
+            last_height = new_height
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//a[contains(@class,"productImage")]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -85,6 +100,5 @@ class Sarkany(CrawlSpider):
             item['other'] = None
             item['image_urls'] = sel.xpath('.//a[@id="botaoZoom"]/@rel').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

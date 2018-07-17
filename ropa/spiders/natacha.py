@@ -25,7 +25,6 @@ class Natacha(CrawlSpider):
     start_urls += ['https://www.shop.natachaweb.com.ar/sandalias_qO27522484XoOmaxPriceXtOcXvOgalleryxSM']
     start_urls += ['https://www.shop.natachaweb.com.ar/stilettos_qO28011717XpO' + str(i) + 'XoOmaxPriceXtOcXvOgalleryxSM' for i in [1,2]]
     start_urls += ['https://www.shop.natachaweb.com.ar/zapatos_qO28012797XoOmaxPriceXtOcXvOgalleryxSM']
-    start_urls += ['https://www.shop.natachaweb.com.ar/zapatos_qO28012797XoOmaxPriceXtOcXvOgalleryxSM']
     start_urls += ['https://www.shop.natachaweb.com.ar/outlet_qO28012241XpO' + str(i) + 'XoOmaxPriceXtOcXvOgalleryxSM' for i in range(1,11)]
                 
     buy_button_path = './/div[contains(@class,"js-product-buy-container product-buy")]//input'
@@ -63,9 +62,8 @@ class Natacha(CrawlSpider):
         links = sel.xpath('.//a[@class="secondImage"]/@href')
         for link in links:
             url_txt = 'https://www.shop.natachaweb.com.ar' + link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -103,6 +101,5 @@ class Natacha(CrawlSpider):
                 img_urls = img_urls[:-1] # Eliminate size table image
             item['image_urls'] = img_urls
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

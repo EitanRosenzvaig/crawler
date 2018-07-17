@@ -20,7 +20,7 @@ class Grimoldi(CrawlSpider):
     allowed_domains = ['www.grimoldi.com']
 
     start_urls = []
-    start_urls = start_urls + ['https://www.grimoldi.com/coleccionmujer/#/mujer/calzado']
+    start_urls = start_urls + ['https://www.grimoldi.com/coleccionmujer/#/mujer/calzado/page/' + str(i) for i in range(39)]
                 
 
 
@@ -57,9 +57,8 @@ class Grimoldi(CrawlSpider):
         links = sel.xpath('.//a[@itemprop="url"]/@href')
         for link in links:
             url_txt = 'https://www.grimoldi.com/' + link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -85,6 +84,5 @@ class Grimoldi(CrawlSpider):
             item['other'] = None
             item['image_urls'] = sel.xpath('.//div[@class="productImages"]//a[contains(@href,"grimoldimedia")]/@href').extract()[0][2:]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

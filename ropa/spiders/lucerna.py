@@ -20,7 +20,7 @@ class Lucerna(CrawlSpider):
     start_urls = []
     start_urls = start_urls + ['https://www.calzadoslucerna.com.ar/coleccion/']
                 
-
+    more_path = './/a[@id="loadMoreBtn"]'
 
     def __init__(self):
         CrawlSpider.__init__(self)
@@ -50,15 +50,27 @@ class Lucerna(CrawlSpider):
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
-        print("NOW SCROLLLLLLL!!!!!")
-        time.sleep(5)
+        for clicks in range(10):
+            time.sleep(2)
+            sel = Selector(text=self.browser.page_source)
+            button = self.browser.find_elements_by_xpath(self.more_path)
+            if len(button) > 0:
+                button = button[0]
+                if button.is_enabled():
+                    try:
+                        button.click()
+                    except:
+                        continue
+                else:
+                    break
+            else:
+                break
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//div[contains(@class,"product-item")]//a[contains(@href,"coleccion") and img]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -84,6 +96,5 @@ class Lucerna(CrawlSpider):
             img_urls = list(map((lambda x: x[2:]), img_urls))
             item['image_urls'] = img_urls
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

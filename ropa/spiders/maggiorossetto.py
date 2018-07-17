@@ -18,7 +18,7 @@ class MaggioRossetto(CrawlSpider):
     name = 'maggiorossetto'
     allowed_domains = ['maggiorossetto.com']
 
-    start_urls = ['https://maggiorossetto.com/collections/zapatos-1?page=' + str(i) for i in [1,2,3]]
+    start_urls = ['https://maggiorossetto.com/collections/zapatos-1?page=' + str(i) for i in range(1,7)]
                 
 
 
@@ -49,19 +49,18 @@ class MaggioRossetto(CrawlSpider):
 
     def parse(self, response):
         print("------------- Crawling ----------------")
-        self.browser.get(response.url)
+        fetch = self.browser.get(response.url)
         sel = Selector(text=self.browser.page_source)
-        links = sel.xpath('.//a[@class="card__wrapper text-center"]/@href')
+        links = sel.xpath('.//a[contains(@class, "ProductItem__ImageWrapper")]/@href')
         for link in links:
-            url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            url_txt = 'https://maggiorossetto.com' + link.extract()
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
             print("------------- New Item ----------------")
-            self.browser.get(response.url)
+            fetch = self.browser.get(response.url)
             time.sleep(2)
             source = self.browser.page_source
             sel = Selector(text=source)
@@ -70,14 +69,13 @@ class MaggioRossetto(CrawlSpider):
             item['url'] = response.url
             item['brand'] = 'maggiorossetto'
             item['breadcrumb'] = []
-            item['title'] = sel.xpath('.//h1[@itemprop="name"]/text()').extract()[0]
-            item['description'] = html_text_normalize(sel.xpath('.//div[@itemprop="description"]/p/text()').extract())
+            item['title'] = sel.xpath('.//h1[contains(@class,"ProductMeta__Title")]/text()').extract()[0]
+            item['description'] = html_text_normalize(sel.xpath('.//div[contains(@class,"ProductMeta__Description")]/p/text()').extract())
             item['code'] = ''
-            item['price'] = price_normalize(sel.xpath('.//span[@class="product__current-price"]/text()').extract()[0])
-            sizes = sel.xpath('.//select[@name="id"]/option[not(contains(text(), "gotado"))]/text()').extract()
+            item['price'] = price_normalize(sel.xpath('.//span[contains(@class,"ProductMeta__Price") and not(contains(@class,"compareAt"))]/text()').extract()[0])
+            sizes = sel.xpath('.//select[@name="id"]/option[not(@disabled)]/text()').extract()
             item['sizes'] = [size[:2] for size in sizes]
-            item['image_urls'] = [url[2:] for url in sel.xpath('.//a[contains(@class,"product__")]/@href').extract()]
+            item['image_urls'] = [url[2:] for url in sel.xpath('.//div[contains(@class, "Product__SlideItem")]//img/@data-original-src').extract()]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

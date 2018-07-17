@@ -64,9 +64,8 @@ class BrunoManetti(CrawlSpider):
         links = sel.xpath('.//a[@class="product-image"]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -103,6 +102,5 @@ class BrunoManetti(CrawlSpider):
             item['sizes'] = sizes
             item['image_urls'] = sel.xpath('.//a[@class="cloud-zoom"]/@href').extract()[0][2:]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

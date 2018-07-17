@@ -19,7 +19,7 @@ class JuanitaJo(CrawlSpider):
     name = 'juanitajo'
     allowed_domains = ['juanitajo.com']
 
-    start_urls = ['https://juanitajo.com/93-calzados?p=' + str(i) for i in [1,2]]
+    start_urls = ['https://juanitajo.com/93-calzados?id_category=93&n=60']
                 
 
 
@@ -56,9 +56,8 @@ class JuanitaJo(CrawlSpider):
         links = sel.xpath('.//a[@class="product_img_link"]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -92,6 +91,5 @@ class JuanitaJo(CrawlSpider):
             item['image_urls'] = [url.replace('-cart_default', '-large_default') for url in \
                                   sel.xpath('.//ul[@id="thumbs_list_frame"]//img/@src').extract()]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

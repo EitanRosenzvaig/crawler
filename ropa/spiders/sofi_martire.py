@@ -21,7 +21,7 @@ class SofiMartire(CrawlSpider):
     allowed_domains = ['www.sofimartire.com.ar']
 
     start_urls = []
-    start_urls = start_urls + ['https://www.sofimartire.com.ar/zapatos.html?p='+str(i) for i in range(2,3)]
+    start_urls = start_urls + ['https://www.sofimartire.com.ar/zapatos.html?p='+str(i) for i in range(1,11)]
         
     def get_with_short_wait(self, seconds, url):
         try:
@@ -61,9 +61,8 @@ class SofiMartire(CrawlSpider):
         links = sel.xpath('.//a[@class="product-image"]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:

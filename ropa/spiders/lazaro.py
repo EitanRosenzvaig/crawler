@@ -18,7 +18,7 @@ class Lazaro(CrawlSpider):
     name = 'lazaro'
     allowed_domains = ['www.lazarocuero.com.ar']
 
-    start_urls = ['https://www.lazarocuero.com.ar/zapatos.html?p=' + str(i) for i in [1,2]]
+    start_urls = ['https://www.lazarocuero.com.ar/zapatos.html?p=' + str(i) for i in [1,2,3,4]]
                 
 
 
@@ -54,9 +54,8 @@ class Lazaro(CrawlSpider):
         links = sel.xpath('.//a[@class="product-image"]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -78,6 +77,5 @@ class Lazaro(CrawlSpider):
             item['sizes'] = sizes
             item['image_urls'] = sel.xpath('.//div[@id="gallery_01"]//li/a/@data-image').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

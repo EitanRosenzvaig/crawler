@@ -54,9 +54,8 @@ class MargieFranzini(CrawlSpider):
         links = sel.xpath('.//a[@class="link link2"]/@href')
         for link in links:
             url_txt = 'https://www.margiefranzini.com' + link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                yield Request(url_txt, callback=self.parse_item)
+            print("------------Found new link: "+str(url_txt))
+            yield Request(url_txt, callback=self.parse_item)
 
 
     def parse_item(self, response):
@@ -84,6 +83,5 @@ class MargieFranzini(CrawlSpider):
             img_urls = sel.xpath('.//li[@role="listitem"]/img/@src').extract()
             item['image_urls'] = [url[2:] for url in img_urls]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")
