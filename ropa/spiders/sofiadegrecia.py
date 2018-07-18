@@ -62,12 +62,13 @@ class SofiaDeGrecia(CrawlSpider):
         while i < total_pages:
             page = self.browser.find_elements_by_xpath(self.next_page)[i]
             page.click()
+            time.sleep(10)
             sel = Selector(text=self.browser.page_source)
-            links += sel.xpath('.//a[@class="product-image"]/@href')
+            links += sel.xpath('.//a[@class="product-image"]/@href').extract()
             i+=1
             total_pages = self.last_page(sel)
-        for link in links:
-            url_txt = link.extract()
+        for link in set(links):
+            url_txt = link.replace('http://','https://')
             print("------------Found new link: "+str(url_txt))
             yield Request(url_txt, callback=self.parse_item)
 

@@ -26,7 +26,7 @@ class XL(CrawlSpider):
         CrawlSpider.__init__(self)
         self.verificationErrors = []
         # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
+        self.browser = webdriver.Firefox()
         self.browser.set_page_load_timeout(120)
         self.connection = MongoClient("localhost", 27017)
         self.comments = self.connection.ropa.items
@@ -50,17 +50,37 @@ class XL(CrawlSpider):
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
+        SCROLL_PAUSE_TIME = 10
+
+        # Get scroll height
+        last_height = self.browser.execute_script("return document.body.scrollHeight")
+
+        while True:
+            # Scroll down to bottom
+            nothing = self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+            # Wait to load page
+            time.sleep(SCROLL_PAUSE_TIME)
+
+            # Calculate new scroll height and compare with last scroll height
+            new_height = self.browser.execute_script("return document.body.scrollHeight")
+            if new_height == last_height:
+                break
+            last_height = new_height        
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//li[@class="calzado---xl-extra-large"]//div[@class="image"]/a[not(contains(@href,"cartera"))]/@href')
         for link in links:
             url_txt = link.extract()
-            if self.links.find_one({"_id": url_txt}) is None:
-                print("------------Found new link: "+str(url_txt))
-                price_xpath = './/a[@href="' + url_txt + '"]/span/text()'
-                price = sel.xpath(price_xpath).extract()[0]
+            print("------------Found new link: "+str(url_txt))
+            price_xpath = './/a[@href="' + url_txt + '"]/span/text()'
+            price = sel.xpath(price_xpath).extract()
+            if len(price) > 0:
+                price = price[0]
                 request = Request(url_txt, callback=self.parse_item)
                 request.meta['price'] = price
                 yield request
+            else:
+                print('Item out of stock')
 
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
@@ -76,15 +96,20 @@ class XL(CrawlSpider):
             item['breadcrumb'] = sel.xpath('.//li[@class="last" and @typeof="v:Breadcrumb"]/a/text()').extract()
             item['title'] = sel.xpath('.//div[contains(@class, "fn productName")]/text()').extract()[0]
             description = sel.xpath('.//div[contains(@class, "productDescription")]/text()').extract()
+            code = ''
             if len(description) > 0:
-                item['description'] = html_text_normalize(description[:-1]) # -1 to exclude code
-            item['code'] = sel.xpath('.//div[contains(@class, "productDescription")]/text()').extract()[-1][8:]
+                for i, s in enumerate(description):
+                    if 'Código:' in s:
+                        start_of_code = s.index('Código:') + 8
+                        code = s[start_of_code:]
+                        del description[i]
+            item['description'] = html_text_normalize(description)
+            item['code'] = code
             item['price'] = price_normalize(response.meta['price'])
             sizes = sel.xpath('.//div[@class="talles isTalle"]/span[@class="stock"]/text()').extract()
             item['sizes'] = sizes
             img_urls = sel.xpath('.//div[@class="thumbs"]/img/@src').extract()
             item['image_urls'] = ['https://www.xlshop.com.ar/' + url for url in img_urls]
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

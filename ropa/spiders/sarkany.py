@@ -93,7 +93,11 @@ class Sarkany(CrawlSpider):
             item['title'] = sel.xpath('.//div[contains(@class,"prodname")]/text()').extract()[0]
             item['description'] = html_text_normalize(sel.xpath('.//div[@class="productDescription"]/text()').extract()[0])
             item['code'] = None
-            price = price_normalize(sel.xpath('.//strong[@class="skuBestPrice"]/text()').extract()[0])
+            price = sel.xpath('.//strong[@class="skuBestPrice"]/text()').extract()
+            if len(price) > 0:
+                price = price_normalize(price[0])
+            else:
+                price = 0
             item['price'] = price
             sizes = sel.xpath('.//label[contains(@class,"Talle") and not(contains(@class,"unavailable"))]/text()').extract()
             item['sizes'] = sizes

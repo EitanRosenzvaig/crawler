@@ -85,6 +85,5 @@ class SofiMartire(CrawlSpider):
             item['other'] = None
             item['image_urls'] = sel.xpath('.//a[contains(@data-image,"product/cache")]/@data-zoom-image').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

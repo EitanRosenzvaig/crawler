@@ -83,6 +83,5 @@ class CarlaDanelli(CrawlSpider):
             item['sizes'] = '' # TODO: They have the size per color 
             item['image_urls'] = sel.xpath('.//ul[@id="ul-moreviews"]/li/a/@href').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

@@ -77,6 +77,5 @@ class SibylVane(CrawlSpider):
             item['sizes'] = sizes
             item['image_urls'] = sel.xpath('.//img[@id="imgProductGallery"]/@data-zoom-image').extract()
             yield item
-            self.links.insert({"_id": response.url})
         else:
             print("-------------- OLD -------------")

@@ -18,7 +18,7 @@ class BenditoPie(CrawlSpider):
     name = 'benditopie'
     allowed_domains = ['benditopie.com']
 
-    start_urls = ['https://benditopie.com/collections/zapatos-1']
+    start_urls = ['https://benditopie.com/collections/zapatos-1?page=' + str(i) for i in range(1,7)]
                 
 
 
