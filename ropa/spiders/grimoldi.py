@@ -20,7 +20,7 @@ class Grimoldi(CrawlSpider):
     allowed_domains = ['www.grimoldi.com']
 
     start_urls = []
-    start_urls = start_urls + ['https://www.grimoldi.com/coleccionmujer/#/mujer/calzado/page/' + str(i) for i in range(39)]
+    start_urls = start_urls + ['https://www.grimoldi.com/coleccionmujer/#/mujer/calzado']
                 
 
 
@@ -28,7 +28,7 @@ class Grimoldi(CrawlSpider):
         CrawlSpider.__init__(self)
         self.verificationErrors = []
         # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
+        self.browser = webdriver.Firefox()
         self.browser.set_page_load_timeout(120)
         self.connection = MongoClient("localhost", 27017)
         self.comments = self.connection.ropa.items
@@ -52,7 +52,23 @@ class Grimoldi(CrawlSpider):
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
-        # time.sleep(100) # To Manually scroll down
+        SCROLL_PAUSE_TIME = 5
+
+        # Get scroll height
+        last_height = self.browser.execute_script("return document.body.scrollHeight")
+
+        while True:
+            # Scroll down to bottom
+            nothing = self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+
+            # Wait to load page
+            time.sleep(SCROLL_PAUSE_TIME)
+
+            # Calculate new scroll height and compare with last scroll height
+            new_height = self.browser.execute_script("return document.body.scrollHeight")
+            if new_height == last_height:
+                break
+            last_height = new_height
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//a[@itemprop="url"]/@href')
         for link in links:
