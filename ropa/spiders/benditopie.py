@@ -16,6 +16,8 @@ from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
 
+from MioCrawler import MioCrawler
+
 class BenditoPie(MioCrawler):
     name = 'benditopie'
     allowed_domains = ['benditopie.com']

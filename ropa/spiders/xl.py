@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import time
 from scrapy.http import Request, FormRequest
 from datetime import datetime
