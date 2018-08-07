@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
 import time
 from scrapy.http import Request
 from datetime import datetime
@@ -16,7 +14,7 @@ from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
 
-from MioCrawler import MioCrawler
+from ropa.spiders.miocrawler import MioCrawler
 
 class BenditoPie(MioCrawler):
     name = 'benditopie'
