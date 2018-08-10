@@ -8,13 +8,13 @@ from scrapy.spiders import CrawlSpider, Rule
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 
-from ropa.items import Item
+from esmio.items import Item
 
 from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
 
-from ropa.spiders.miocrawler import MioCrawler
+from esmio.spiders.miocrawler import MioCrawler
 
 class BenditoPie(MioCrawler):
     name = 'benditopie'

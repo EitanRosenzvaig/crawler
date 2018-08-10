@@ -12,7 +12,7 @@ from selenium.webdriver.common.by import By
 import selenium.webdriver.support.expected_conditions as EC
 
 
-from ropa.items import Item
+from esmio.items import Item
 
 from pymongo import MongoClient
 

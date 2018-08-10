@@ -10,7 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 from selenium.common.exceptions import TimeoutException
 
-from ropa.items import Item
+from esmio.items import Item
 
 from pymongo import MongoClient
 from text_parser import price_normalize, html_text_normalize
