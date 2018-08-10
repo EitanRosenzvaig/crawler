@@ -14,6 +14,7 @@ from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
 
+from selenium.common.exceptions import UnexpectedAlertPresentException
 
 class Grimoldi(CrawlSpider):
     name = 'grimoldi'
@@ -56,8 +57,8 @@ class Grimoldi(CrawlSpider):
 
         # Get scroll height
         last_height = self.browser.execute_script("return document.body.scrollHeight")
-
-        while True:
+        scrolls = 0
+        while scrolls < 15:
             # Scroll down to bottom
             nothing = self.browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
 
@@ -69,10 +70,11 @@ class Grimoldi(CrawlSpider):
             if new_height == last_height:
                 break
             last_height = new_height
+            scrolls += 1
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//a[@itemprop="url"]/@href')
         for link in links:
-            url_txt = 'https://www.grimoldi.com/' + link.extract()
+            url_txt = 'https://www.grimoldi.com' + link.extract()
             print("------------Found new link: "+str(url_txt))
             yield Request(url_txt, callback=self.parse_item)
 
@@ -80,6 +82,7 @@ class Grimoldi(CrawlSpider):
         if self.links.find_one({"_id": response.url}) is None:
             print("------------- New Item ----------------")
             self.browser.get(response.url)
+            time.sleep(10)
             source = self.browser.page_source
             sel = Selector(text=source)
             item = Item()
@@ -98,7 +101,9 @@ class Grimoldi(CrawlSpider):
             sizes = sel.xpath('.//select[@id="IdMedidaSeleccionada"]/option/text()').extract()
             item['sizes'] = sizes
             item['other'] = None
-            item['image_urls'] = sel.xpath('.//div[@class="productImages"]//a[contains(@href,"grimoldimedia")]/@href').extract()[0][2:]
+            urls = sel.xpath('.//div[@class="productImages"]//li/img/@data-image-url').extract()
+            item['image_urls'] = [url[2:] for url in urls]
             yield item
         else:
             print("-------------- OLD -------------")
+
