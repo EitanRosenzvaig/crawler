@@ -1,16 +1,18 @@
+import os
 import pymongo
 
 from scrapy.conf import settings
 from scrapy.exceptions import DropItem
 from scrapy import log
 
+MONGO_CONNECTION_STRING = os.environ.get('MONGO_CONNECTION_STRING')
 
 class MongoDBPipeline(object):
 
     def __init__(self):
         connection = pymongo.MongoClient(
-            settings['MONGODB_SERVER'],
-            settings['MONGODB_PORT']
+            MONGO_CONNECTION_STRING, 
+            27017
         )
         db = connection[settings['MONGODB_DB']]
         self.collection = db[settings['MONGODB_COLLECTION']]
