@@ -1,8 +1,10 @@
+import os
 from pymongo import MongoClient
 from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from scrapy.spiders import CrawlSpider
 
+
+MONGO_CONNECTION_STRING = os.environ.get('MONGO_CONNECTION_STRING')
 
 """
     Default Crawler with the base configuration.
@@ -13,13 +15,14 @@ class MioCrawler(CrawlSpider):
         CrawlSpider.__init__(self)
         self.verificationErrors = []
         
-        chrome_options = Options()  
-        chrome_options.set_headless(headless=True)
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--headless')
+        chrome_options.add_argument('--no-sandbox')
         prefs = {"profile.managed_default_content_settings.images":2}
         chrome_options.add_experimental_option("prefs",prefs)
-        self.browser = webdriver.Chrome(chrome_options=chrome_options)  
+        self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.browser.set_page_load_timeout(120)
-        self.connection = MongoClient("localhost", 27017)
+        self.connection = MongoClient(MONGO_CONNECTION_STRING, 27017)
         self.comments = self.connection.ropa.items
         self.links = self.connection.ropa.links
 
