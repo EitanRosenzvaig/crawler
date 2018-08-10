@@ -21,22 +21,21 @@ pip install pathlib
 pip install money-parser
 pip install bs4
 ```
-###Instalar chrome driver:
+## Instalar chrome driver:
 
-#TODO: Arreglar la opcion automatica. Se copia el file pero sin modo ejecuion
-
-sudo apt-get install libarchive-tools
-# platform options: linux32, linux64, mac64, win32
+#### Opcion automatica: (No funciona por ahora)
+`sudo apt-get install libarchive-tools`
+#platform options: linux32, linux64, mac64, win32
 ```
 PLATFORM=linux64
 VERSION=$(curl http://chromedriver.storage.googleapis.com/LATEST_RELEASE)
 curl http://chromedriver.storage.googleapis.com/$VERSION/chromedriver_$PLATFORM.zip | sudo bsdtar -xvf - -C /usr/local/bin/
 ```
 
-Opcion manual: Descargar y colocar en el path
+#### Opcion manual: Descargar y colocar en el path
 ```
 curl -o ./chromedriver_linux64.zip https://chromedriver.storage.googleapis.com/2.41/chromedriver_linux64.zip
-sudo mv chromedriver_linux64.zip /usr/local/bin/
+mv chromedriver_linux64.zip /usr/local/bin/
 unzip /usr/local/bin/chromedriver_linux64.zip
 rm /usr/local/bin/chromedriver_linux64.zip
 ```
@@ -46,7 +45,7 @@ Follow these instructins:
 https://medium.com/mongoaudit/how-to-upgrade-mongodb-to-latest-stable-version-9607266834cf
 
 
-### Instalar Chrome
+## Instalar Chrome
 ```
 export CHROME_BIN=/usr/bin/google-chrome
 export DISPLAY=:99.0
