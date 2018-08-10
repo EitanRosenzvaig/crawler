@@ -9,10 +9,10 @@
 #     http://scrapy.readthedocs.org/en/latest/topics/downloader-middleware.html
 #     http://scrapy.readthedocs.org/en/latest/topics/spider-middleware.html
 
-BOT_NAME = 'ropa'
+BOT_NAME = 'esmio'
 
-SPIDER_MODULES = ['ropa.spiders']
-NEWSPIDER_MODULE = 'ropa.spiders'
+SPIDER_MODULES = ['esmio.spiders']
+NEWSPIDER_MODULE = 'esmio.spiders'
 
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
@@ -89,9 +89,9 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 4
 #HTTPCACHE_IGNORE_HTTP_CODES = []
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
-ITEM_PIPELINES = {'ropa.pipelines.MongoDBPipeline': 1000}
+ITEM_PIPELINES = {'esmio.pipelines.MongoDBPipeline': 1000}
 
 MONGODB_SERVER = "localhost"
 MONGODB_PORT = 27017
-MONGODB_DB = "ropa"
+MONGODB_DB = "esmio"
 MONGODB_COLLECTION = "items"

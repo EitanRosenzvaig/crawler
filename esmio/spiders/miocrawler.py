@@ -23,8 +23,8 @@ class MioCrawler(CrawlSpider):
         self.browser = webdriver.Chrome(chrome_options=chrome_options)
         self.browser.set_page_load_timeout(120)
         self.connection = MongoClient(MONGO_CONNECTION_STRING, 27017)
-        self.comments = self.connection.ropa.items
-        self.links = self.connection.ropa.links
+        self.comments = self.connection.esmio.items
+        self.links = self.connection.esmio.links
 
     # TODO: Borrar esto porque aparentemente no se usa.
     def flaten_array_of_strings(self, array):
