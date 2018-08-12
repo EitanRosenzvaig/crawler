@@ -13,39 +13,13 @@ from esmio.items import Item
 from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
+from esmio.spiders.miocrawler import MioCrawler
 
-class JackieSmith(CrawlSpider):
+class JackieSmith(MioCrawler):
     name = 'jackiesmith'
     allowed_domains = ['jackiesmith.com.ar']
 
     start_urls = ['https://www.jackiesmith.com.ar/collections/zapatos']
-                
-
-
-    def __init__(self):
-        CrawlSpider.__init__(self)
-        self.verificationErrors = []
-        # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
-        self.browser.set_page_load_timeout(120)
-        self.connection = MongoClient("localhost", 27017)
-        self.comments = self.connection.ropa.items
-        self.links = self.connection.ropa.links
-
-    rules = [
-        # Rule(LinkExtractor(restrict_xpaths="//a[@class='f-linkNota']"), callback='parse_item', follow=True)
-        # Rule(LinkExtractor(allow_domains=allowed_domains), callback='parse_item', follow=True)
-    ]
-
-    def flaten_array_of_strings(self, array):
-        if len(array) > 0:
-            final_string = array[0]
-            for i in range(1, len(array)-1):
-                final_string += " " + array[i]
-            return(final_string)
-        else:
-            return("")
-
 
     def parse(self, response):
         print("------------- Crawling ----------------")
@@ -53,11 +27,15 @@ class JackieSmith(CrawlSpider):
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//div[@class="product"]/a/@href')
         for link in links:
-            url_txt = 'https://jackiesmith.com.ar' + link.extract()
+            #print("-.-.-.-.-.-.-.-.- " + str(link.extract()))
+            #url_txt = 'https://jackiesmith.com.ar' + link.extract()
+            url_txt = link.extract()
             print("------------Found new link: "+str(url_txt))
-            yield Request(url_txt, callback=self.parse_item)
+            res = Request(url_txt, callback=self.parse_item)
+            yield res
 
     def parse_item(self, response):
+        print("-.-.-.-.- Parsing Item")
         if self.links.find_one({"_id": response.url}) is None:
             print("------------- New Item ----------------")
             self.browser.get(response.url)

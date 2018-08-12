@@ -15,40 +15,13 @@ from pymongo import MongoClient
 from text_parser import price_normalize, html_text_normalize
 
 from selenium.common.exceptions import UnexpectedAlertPresentException
+from esmio.spiders.miocrawler import MioCrawler
 
-class Grimoldi(CrawlSpider):
+class Grimoldi(MioCrawler):
     name = 'grimoldi'
     allowed_domains = ['www.grimoldi.com']
 
-    start_urls = []
-    start_urls = start_urls + ['https://www.grimoldi.com/coleccionmujer/#/mujer/calzado']
-                
-
-
-    def __init__(self):
-        CrawlSpider.__init__(self)
-        self.verificationErrors = []
-        # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Firefox()
-        self.browser.set_page_load_timeout(120)
-        self.connection = MongoClient("localhost", 27017)
-        self.comments = self.connection.ropa.items
-        self.links = self.connection.ropa.links
-
-    rules = [
-        # Rule(LinkExtractor(restrict_xpaths="//a[@class='f-linkNota']"), callback='parse_item', follow=True)
-        # Rule(LinkExtractor(allow_domains=allowed_domains), callback='parse_item', follow=True)
-    ]
-
-    def flaten_array_of_strings(self, array):
-        if len(array) > 0:
-            final_string = array[0]
-            for i in range(1, len(array)-1):
-                final_string += " " + array[i]
-            return(final_string)
-        else:
-            return("")
-
+    start_urls = ['https://www.grimoldi.com/coleccionmujer/#/mujer/calzado']
 
     def parse(self, response):
         print("------------- Crawling ----------------")
