@@ -17,7 +17,7 @@ from esmio.spiders.miocrawler import MioCrawler
 
 class JackieSmith(MioCrawler):
     name = 'jackiesmith'
-    allowed_domains = ['jackiesmith.com.ar']
+    allowed_domains = ['jackiesmith.com.ar', 'jackiesmith.com']
 
     start_urls = ['https://www.jackiesmith.com.ar/collections/zapatos']
 
@@ -31,11 +31,9 @@ class JackieSmith(MioCrawler):
             #url_txt = 'https://jackiesmith.com.ar' + link.extract()
             url_txt = link.extract()
             print("------------Found new link: "+str(url_txt))
-            res = Request(url_txt, callback=self.parse_item)
-            yield res
+            yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
-        print("-.-.-.-.- Parsing Item")
         if self.links.find_one({"_id": response.url}) is None:
             print("------------- New Item ----------------")
             self.browser.get(response.url)
