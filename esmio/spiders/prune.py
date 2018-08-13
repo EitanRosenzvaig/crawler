@@ -18,33 +18,16 @@ from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
 
+from esmio.spiders.miocrawler import MioCrawler
 
 
-class Prune(CrawlSpider):
+class Prune(MioCrawler):
     name = 'prune'
     allowed_domains = ['www.prune.com.ar']
 
     start_urls = []
     start_urls = start_urls + ['https://www.prune.com.ar/zapatos.html?p='+str(i) for i in range(1,10)]
                 #'https://www.prune.com.ar/accesorios/ver-todo.html?p='+str(i) for i in range(1,10)
-                
-
-
-    def __init__(self):
-        CrawlSpider.__init__(self)
-        self.verificationErrors = []
-        # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
-        self.browser.set_page_load_timeout(120)
-        self.connection = MongoClient("localhost", 27017)
-        self.comments = self.connection.ropa.items
-        self.links = self.connection.ropa.links
-
-    rules = [
-        # Rule(LinkExtractor(restrict_xpaths="//a[@class='f-linkNota']"), callback='parse_item', follow=True)
-        # Rule(LinkExtractor(allow_domains=allowed_domains), callback='parse_item', follow=True)
-    ]
-
 
     def is_visible(self, locator, timeout=2):
         try:
@@ -52,17 +35,6 @@ class Prune(CrawlSpider):
             return True
         except TimeoutException:
             return False
-
-
-    def flaten_array_of_strings(self, array):
-        if len(array) > 0:
-            final_string = array[0]
-            for i in range(1, len(array)-1):
-                final_string += " " + array[i]
-            return(final_string)
-        else:
-            return("")
-
 
     def parse(self, response):
         print("------------- Crawling ----------------")
@@ -74,6 +46,7 @@ class Prune(CrawlSpider):
             print("------------Found new link: "+str(url_txt))
             yield Request(url_txt, callback=self.parse_item)
 
+    """ Cuidado con algunos items que no tienes variaciones, ej: https://www.prune.com.ar/p703373giaa1039.html"""
     def parse_item(self, response):
         if self.links.find_one({"_id": response.url}) is None:
             print("------------- New Item ----------------")

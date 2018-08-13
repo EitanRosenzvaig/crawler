@@ -13,39 +13,13 @@ from esmio.items import Item
 from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
+from esmio.spiders.miocrawler import MioCrawler
 
-class MaggioRossetto(CrawlSpider):
+class MaggioRossetto(MioCrawler):
     name = 'maggiorossetto'
     allowed_domains = ['maggiorossetto.com']
 
     start_urls = ['https://maggiorossetto.com/collections/zapatos-1?page=' + str(i) for i in range(1,7)]
-                
-
-
-    def __init__(self):
-        CrawlSpider.__init__(self)
-        self.verificationErrors = []
-        # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
-        self.browser.set_page_load_timeout(120)
-        self.connection = MongoClient("localhost", 27017)
-        self.comments = self.connection.ropa.items
-        self.links = self.connection.ropa.links
-
-    rules = [
-        # Rule(LinkExtractor(restrict_xpaths="//a[@class='f-linkNota']"), callback='parse_item', follow=True)
-        # Rule(LinkExtractor(allow_domains=allowed_domains), callback='parse_item', follow=True)
-    ]
-
-    def flaten_array_of_strings(self, array):
-        if len(array) > 0:
-            final_string = array[0]
-            for i in range(1, len(array)-1):
-                final_string += " " + array[i]
-            return(final_string)
-        else:
-            return("")
-
 
     def parse(self, response):
         print("------------- Crawling ----------------")
