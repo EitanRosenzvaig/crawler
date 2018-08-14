@@ -20,7 +20,7 @@ class Dos61(MioCrawler):
     name = 'dos61'
     allowed_domains = ['www.dos61.com']
 
-    start_urls = ['https://www.dos61.com/tienda/page/' + str(i) for i in [1,2,3,4]]
+    start_urls = ['https://www.dos61.com/tienda/page/' + str(i) + '/?min_price=500&max_price=5000' for i in [1,2,3,4]]
 
     def flaten_array_of_strings(self, array):
         if len(array) > 0:
@@ -35,7 +35,7 @@ class Dos61(MioCrawler):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
         sel = Selector(text=self.browser.page_source)
-        links = sel.xpath('.//a[@class="woocommerce-LoopProduct-link"]/@href')
+        links = sel.xpath('.//a[@class="woocommerce-LoopProduct-link" and not(contains(@href,"raincoat")))]/@href')
         for link in links:
             url_txt = link.extract()
             print("------------Found new link: "+str(url_txt))

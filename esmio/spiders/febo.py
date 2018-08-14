@@ -15,20 +15,21 @@ from pymongo import MongoClient
 from text_parser import price_normalize, html_text_normalize
 from esmio.spiders.miocrawler import MioCrawler
 
-
 class Febo(MioCrawler):
     name = 'febo'
     allowed_domains = ['zapateriafebo.com']
 
-    start_urls = ['http://zapateriafebo.com/listado_productos.php?categoria=M#']
+    start_urls = ['https://zapateriafebo.com/listado_productos.php?categoria=M#']
 
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
+        # TODO: Wait using a different way then just a sleep
+        time.sleep(10) # Products loaded by Ajax so we need to wait
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//a[contains(@href,"detalle_producto")]/@href')
         for link in links:
-            url_txt = 'http://zapateriafebo.com/' + link.extract()
+            url_txt = 'https://zapateriafebo.com/' + link.extract()
             print("------------Found new link: "+str(url_txt))
             yield Request(url_txt, callback=self.parse_item)
 

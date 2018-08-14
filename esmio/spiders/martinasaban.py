@@ -13,7 +13,6 @@ from esmio.items import Item
 from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
-from pdb import set_trace as bp
 from esmio.spiders.miocrawler import MioCrawler
 
 class MartinaSaban(MioCrawler):
