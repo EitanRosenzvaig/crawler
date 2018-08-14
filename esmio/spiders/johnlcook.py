@@ -11,44 +11,19 @@ from selenium.webdriver.support.ui import WebDriverWait
 from esmio.items import Item
 
 from pymongo import MongoClient
+from esmio.spiders.miocrawler import MioCrawler
 
 
-class JohnLCook(CrawlSpider):
+class JohnLCook(MioCrawler):
     name = 'johnlcook'
     allowed_domains = ['shop.johnlcook.com.ar']
 
     start_urls = ['http://shop.johnlcook.com.ar/cook/winter/sneakers.html']
 
-
-    def __init__(self):
-        CrawlSpider.__init__(self)
-        self.verificationErrors = []
-        # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
-        self.browser.set_page_load_timeout(120)
-        self.connection = MongoClient("localhost", 27017)
-        self.comments = self.connection.ropa.items
-        self.links = self.connection.ropa.links
-
-    rules = [
-        # Rule(LinkExtractor(restrict_xpaths="//a[@class='f-linkNota']"), callback='parse_item', follow=True)
-        # Rule(LinkExtractor(allow_domains=allowed_domains), callback='parse_item', follow=True)
-    ]
-
-    def flaten_array_of_strings(self, array):
-        if len(array) > 0:
-            final_string = array[0]
-            for i in range(1, len(array)-1):
-                final_string += " " + array[i]
-            return(final_string)
-        else:
-            return("")
-
-
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
-        time.sleep(200) # To Manually scroll down
+        #time.sleep(200) # To Manually scroll down
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//a[@class="product-image"]/@href')
         for link in links:

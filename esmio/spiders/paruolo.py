@@ -13,8 +13,9 @@ from esmio.items import Item
 from pymongo import MongoClient
 
 from text_parser import price_normalize, html_text_normalize
+from esmio.spiders.miocrawler import MioCrawler
 
-class Paruolo(CrawlSpider):
+class Paruolo(MioCrawler):
     name = 'paruolo'
     allowed_domains = ['www.paruolo.com.ar']
 
@@ -31,33 +32,6 @@ class Paruolo(CrawlSpider):
     start_urls = start_urls + ['https://www.paruolo.com.ar/sneakers.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
     start_urls = start_urls + ['https://www.paruolo.com.ar/ankle-boots.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
     start_urls = start_urls + ['https://www.paruolo.com.ar/50.html?product_list_limit=32&p=' + str(i) for i in range(1,5)]
-                
-
-
-    def __init__(self):
-        CrawlSpider.__init__(self)
-        self.verificationErrors = []
-        # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
-        self.browser.set_page_load_timeout(120)
-        self.connection = MongoClient("localhost", 27017)
-        self.comments = self.connection.ropa.items
-        self.links = self.connection.ropa.links
-
-    rules = [
-        # Rule(LinkExtractor(restrict_xpaths="//a[@class='f-linkNota']"), callback='parse_item', follow=True)
-        # Rule(LinkExtractor(allow_domains=allowed_domains), callback='parse_item', follow=True)
-    ]
-
-    def flaten_array_of_strings(self, array):
-        if len(array) > 0:
-            final_string = array[0]
-            for i in range(1, len(array)-1):
-                final_string += " " + array[i]
-            return(final_string)
-        else:
-            return("")
-
 
     def parse(self, response):
         print("------------- Crawling ----------------")

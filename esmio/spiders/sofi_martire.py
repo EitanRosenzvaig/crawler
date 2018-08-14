@@ -15,8 +15,9 @@ from esmio.items import Item
 from pymongo import MongoClient
 from text_parser import price_normalize, html_text_normalize
 from pdb import set_trace as bp
+from esmio.spiders.miocrawler import MioCrawler
 
-class SofiMartire(CrawlSpider):
+class SofiMartire(MioCrawler):
     name = 'sofimartire'
     allowed_domains = ['www.sofimartire.com.ar']
 
@@ -29,30 +30,6 @@ class SofiMartire(CrawlSpider):
             self.browser.get(url)
         except TimeoutException:
             pass
-
-    def __init__(self):
-        CrawlSpider.__init__(self)
-        self.verificationErrors = []
-        # self.browser = webdriver.PhantomJS()
-        self.browser = webdriver.Chrome()
-        self.connection = MongoClient("localhost", 27017)
-        self.comments = self.connection.ropa.items
-        self.links = self.connection.ropa.links
-
-    rules = [
-        # Rule(LinkExtractor(restrict_xpaths="//a[@class='f-linkNota']"), callback='parse_item', follow=True)
-        # Rule(LinkExtractor(allow_domains=allowed_domains), callback='parse_item', follow=True)
-    ]
-
-    def flaten_array_of_strings(self, array):
-        if len(array) > 0:
-            final_string = array[0]
-            for i in range(1, len(array)-1):
-                final_string += " " + array[i]
-            return(final_string)
-        else:
-            return("")
-
 
     def parse(self, response):
         print("------------- Crawling ----------------")
