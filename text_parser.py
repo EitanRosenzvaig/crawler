@@ -32,6 +32,7 @@ def html_text_normalize(text):
     text = text.replace(u'\xa0', '')
     # Remove enters and trailing spaces
     text = text.replace('\n', '')
+    text = text.replace('\t', ' ')
     # Add space before cap words which are not at the beggining
     text = re.sub(r'(?<!^)([A-Z][a-z])',r' \1', text)
     # Remove double spaces that might have been generated
