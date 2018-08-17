@@ -20,12 +20,12 @@ class Falabella(MioCrawler):
     name = 'falabella'
     allowed_domains = ['www.falabella.com.ar']
     start_urls = ['https://www.falabella.com.ar/falabella-ar/category/cat20141/Zapatos-de-mujer?isPLP=1&page=' \
-        + str(i) for i in range(1,2)]
+        + str(i) for i in range(1,40)]
 
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
-        time.sleep(2)
+        time.sleep(1)
         sel = Selector(text=self.browser.page_source)
         links = sel.xpath('.//div[@class="fb-pod-group__item fb-pod-group__item--product"]//a[@class="fb-pod__header-link gridSize-1"]/@href')
         for link in links:
