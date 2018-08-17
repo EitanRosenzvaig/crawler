@@ -1,4 +1,5 @@
 import time
+from django.template.defaultfilters import slugify
 from scrapy.http import Request
 from datetime import datetime
 from selenium import webdriver
@@ -19,7 +20,7 @@ class Falabella(MioCrawler):
     name = 'falabella'
     allowed_domains = ['www.falabella.com.ar']
     start_urls = ['https://www.falabella.com.ar/falabella-ar/category/cat20141/Zapatos-de-mujer?isPLP=1&page=' \
-        + str(i) for i in range(1,40)]
+        + str(i) for i in range(1,2)]
 
     def parse(self, response):
         print("------------- Crawling ----------------")
@@ -36,13 +37,14 @@ class Falabella(MioCrawler):
         if self.links.find_one({"_id": response.url}) is None:
             print("------------- New Item ----------------")
             self.browser.get(response.url)
-            time.sleep(2)
+            time.sleep(1)
             source = self.browser.page_source
             sel = Selector(text=source)
             item = Item()
             item['created_at'] = datetime.now()
             item['url'] = response.url
-            item['brand'] = sel.xpath('.//h6[@class="fb-product-cta__brand fb-stylised-caps"]/text()').extract()[0]
+            brand = sel.xpath('.//h6[@class="fb-product-cta__brand fb-stylised-caps"]/text()').extract()[0]
+            item['brand'] = slugify(brand)
             item['breadcrumb'] = []
             item['title'] = sel.xpath('.//tr[th[contains(text(),"Modelo")]]/td/text()').extract()[0]
             description = html_text_normalize(sel.xpath('.//table[@class="fb-product-information__specification__table"]//tr[contains(@class,"row-data")]//text()')

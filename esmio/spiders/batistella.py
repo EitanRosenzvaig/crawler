@@ -54,7 +54,7 @@ class Batistella(MioCrawler):
         if self.links.find_one({"_id": response.url}) is None:
             print("------------- New Item ----------------")
             self.browser.get(response.url)
-            time.sleep(2)
+            time.sleep(1)
             source = self.browser.page_source
             sel = Selector(text=source)
             item = Item()
