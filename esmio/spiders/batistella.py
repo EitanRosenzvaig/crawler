@@ -7,6 +7,7 @@ from scrapy.linkextractors import LinkExtractor
 from scrapy.spiders import CrawlSpider, Rule
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
+from selenium.common.exceptions import NoSuchElementException
 
 from esmio.items import Item
 
@@ -18,17 +19,34 @@ from esmio.spiders.miocrawler import MioCrawler
 class Batistella(MioCrawler):
     name = 'batistella'
     allowed_domains = ['calzadosbatistella.com.ar']
-    start_urls = ['https://calzadosbatistella.com.ar/shop/6-mujeres#/talle-35-36-37-38-39-40-41/page-' \
-        + str(i) for i in range(1,13)]
+    start_urls = ['https://calzadosbatistella.com.ar/shop/6-mujeres#/talle-35-36-37-38-39-40-41']
+
+    def get_next_page_link(self):
+        try:
+            tags = self.browser.find_element_by_id("pagination_next_bottom") \
+                               .find_elements_by_tag_name("a")
+            if len(tags) > 0:
+                return tags[0]
+            else:
+                return None
+        except NoSuchElementException:
+            return None
 
     def parse(self, response):
         print("------------- Crawling ----------------")
         self.browser.get(response.url)
-        time.sleep(3)
+        time.sleep(5)
         sel = Selector(text=self.browser.page_source)
-        links = sel.xpath('.//a[@class="item-image-link img-wrapper"]/@href')
-        for link in links:
-            url_txt = link.extract()
+        links = sel.xpath('.//a[@class="item-image-link img-wrapper" and not(contains(@href, "accesorios"))]/@href').extract()
+        next_page_link = self.get_next_page_link()
+        while next_page_link is not None:
+            next_page_link.click()
+            time.sleep(5)
+            sel = Selector(text=self.browser.page_source)
+            links += sel.xpath('.//a[@class="item-image-link img-wrapper" and not(contains(@href, "accesorios"))]/@href').extract()
+            next_page_link = self.get_next_page_link()
+        for link in set(links):
+            url_txt = link
             print("------------Found new link: "+str(url_txt))
             yield Request(url_txt, callback=self.parse_item)
 
