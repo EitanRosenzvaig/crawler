@@ -12,14 +12,18 @@ from esmio.items import Item
 
 from pymongo import MongoClient
 
-from text_parser import price_normalize, html_text_normalize, size_normalize
+from text_parser import price_normalize, html_text_normalize, sizes_normalize
 from esmio.spiders.miocrawler import MioCrawler
 
 class MargieFranzini(MioCrawler):
     name = 'margiefranzini'
     allowed_domains = ['www.margiefranzini.com']
 
-    start_urls = ['https://www.margiefranzini.com/_XpO' + str(i) + 'XtOwXvOgalleryxSM' for i in range(1,11)]
+    start_urls = [
+                  'https://www.margiefranzini.com/_XpO' +
+                  str(i) + 'XtOwXvOgalleryxSM' 
+                  for i in range(1,11)
+                  ]
 
     def parse(self, response):
         print("------------- Crawling ----------------")
@@ -36,7 +40,6 @@ class MargieFranzini(MioCrawler):
     def parse_item(self, response):
         print("------------- New Item ----------------")
         self.browser.get(response.url)
-        time.sleep(2)
         source = self.browser.page_source
         sel = Selector(text=source)
         item = Item()
@@ -44,7 +47,8 @@ class MargieFranzini(MioCrawler):
         item['url'] = response.url
         item['brand'] = 'margiefranzini'
         item['breadcrumb'] = []
-        item['title'] = sel.xpath('.//h1[@class="title border"]/text()').extract()[0]
+        title = sel.xpath('.//h1[@class="title border"]/text()').extract()[0]
+        item['title'] = title.replace(' Margie Franzini Shoes ', ' ').replace(' Margie Franzini ',' ')
         item['description'] = html_text_normalize(sel.xpath('.//article[@id="tabDescription"]/p/text()').extract())
         item['code'] = ''
         price = sel.xpath('.//dl[@class="priceInfo clearfix promotionPrice"]//span[@class="ch-price price"]/text()').extract()
@@ -53,7 +57,10 @@ class MargieFranzini(MioCrawler):
         else:
             price = price[0]
         item['price'] = price_normalize(price)
-        item['sizes'] = size_normalize(sel.xpath('.//menu/li/span[not(contains(text(),"Talle"))]/text()').extract())
+        sizes = sel.xpath('.//menu/li/span[not(contains(text(),"Talle"))]/text()').extract()
+        if len(sizes) == 0:
+            sizes = sel.xpath('.//span[@data-idx="1" and contains(text(),"Talle")]/text()').extract()
+        item['sizes'] = sizes_normalize(sizes)
         img_urls = sel.xpath('.//li[@role="listitem"]/img/@src').extract()
         item['image_urls'] = [url[2:] for url in img_urls]
         yield item
