@@ -71,8 +71,7 @@ class Natacha(MioCrawler):
             sizes = sel.xpath('.//div[@id="my-variation-1-container"]//menu[contains(@class,"ch-select-content")]/li/span[not(text()="Talle")]/text()').extract()
             if len(sizes) == 0:
                 sizes = [sel.xpath('.//span[contains(text(),"Talle")]/text()').extract()[0].replace('Talle: ','')]
-            item['sizes'] = sizes
-            #TODO: Cuando no hay un talle queda asi [ "37 - Sin Stock", "39 - Sin Stock", "40 - Sin Stock", "41 - Sin Stock" ]
+            item['sizes'] = [s for s in sizes if "Sin Stock" not in s] # Cuando no hay un talle queda asi [ "37 - Sin Stock", "39 - Sin Stock", "40 - Sin Stock", "41 - Sin Stock" ]
             img_urls = sel.xpath('.//ul[@class="ch-carousel-list"]/li/img/@src').extract()
             if len(img_urls) > 1:
                 img_urls = img_urls[:-1] # Eliminate size table image
