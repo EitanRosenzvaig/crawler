@@ -34,30 +34,27 @@ class Falabella(MioCrawler):
             yield Request(url_txt, callback=self.parse_item)
 
     def parse_item(self, response):
-        if self.links.find_one({"_id": response.url}) is None:
-            print("------------- New Item ----------------")
-            self.browser.get(response.url)
-            time.sleep(1)
-            source = self.browser.page_source
-            sel = Selector(text=source)
-            item = Item()
-            item['created_at'] = datetime.now()
-            item['url'] = response.url
-            brand = sel.xpath('.//h6[@class="fb-product-cta__brand fb-stylised-caps"]/text()').extract()[0]
-            item['brand'] = slugify(brand)
-            item['breadcrumb'] = []
-            item['title'] = sel.xpath('.//tr[th[contains(text(),"Modelo")]]/td/text()').extract()[0]
-            description = html_text_normalize(sel.xpath('.//table[@class="fb-product-information__specification__table"]//tr[contains(@class,"row-data")]//text()')
-                .extract())
-            item['description'] = description
-            item['code'] = sel.xpath('.//p[@class="fb-product-sets__product-code"]/text()').extract()[0].replace('Código del producto:','')
-            item['price'] = price_normalize(sel.xpath('.//p[@class="fb-price" and contains(text(), "Contado")]/text()')
-                .extract()[0]
-                .replace('Contado',''))
-            sizes = sel.xpath('.//select[@class="fb-inline-dropdown__native-dropdown fsrVisible"]/option[@value!=""]/@value').extract()
-            item['sizes'] = sizes_normalize(sizes)
-            item['image_urls'] = [url[2:] for url in \
-                sel.xpath('.//span[@class="fb-pp-gallery-list__link js-pp-zoom-link" and not(span/i[@class="icon-productGalleryMore"])]/@data-image-zoom').extract()]
-            yield item
-        else:
-            print("-------------- OLD -------------")
+        print("------------- New Item ----------------")
+        self.browser.get(response.url)
+        time.sleep(1)
+        source = self.browser.page_source
+        sel = Selector(text=source)
+        item = Item()
+        item['created_at'] = datetime.now()
+        item['url'] = response.url
+        brand = sel.xpath('.//h6[@class="fb-product-cta__brand fb-stylised-caps"]/text()').extract()[0]
+        item['brand'] = slugify(brand)
+        item['breadcrumb'] = html_text_normalize(sel.xpath('.//b[@class="fb-masthead__breadcrumb__links"]//span[@itemprop="title"]/text()').extract())
+        item['title'] = sel.xpath('.//h1[@class="fb-product-cta__title"]/text()').extract()[0]
+        description = html_text_normalize(sel.xpath('.//table[@class="fb-product-information__specification__table"]//tr[contains(@class,"row-data")]//text()')
+            .extract())
+        item['description'] = description
+        item['code'] = sel.xpath('.//p[@class="fb-product-sets__product-code"]/text()').extract()[0].replace('Código del producto:','')
+        item['price'] = price_normalize(sel.xpath('.//p[@class="fb-price" and contains(text(), "Contado")]/text()')
+            .extract()[0]
+            .replace('Contado',''))
+        sizes = sel.xpath('.//select[@class="fb-inline-dropdown__native-dropdown fsrVisible"]/option[@value!=""]/@value').extract()
+        item['sizes'] = sizes_normalize(sizes)
+        item['image_urls'] = [url[2:] for url in \
+            sel.xpath('.//span[@class="fb-pp-gallery-list__link js-pp-zoom-link" and not(span/i[@class="icon-productGalleryMore"])]/@data-image-zoom').extract()]
+        yield item
