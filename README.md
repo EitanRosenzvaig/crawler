@@ -20,6 +20,7 @@ pip install pymongo
 pip install pathlib
 pip install money-parser
 pip install bs4
+pip install django
 ```
 ## Instalar chrome driver:
 
