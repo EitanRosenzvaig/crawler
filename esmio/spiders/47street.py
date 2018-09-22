@@ -19,7 +19,7 @@ class CuarentiSieteStreet(MioCrawler):
     name = 'cuarentisietestreet'
     allowed_domains = ['47street.com.ar']
 
-    start_urls = ['https://47street.com.ar/invierno18/calzado.html']
+    start_urls = ['https://47street.com.ar/accesorios/calzado.html']
 
     def parse(self, response):
         print("------------- Crawling ----------------")
